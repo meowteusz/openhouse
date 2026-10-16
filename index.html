@@ -8,32 +8,38 @@
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <style>:root {
-  --bg: #0a0a0b;
-  --panel: #16181a;
-  --line: #2c3033;
-  --text: #c6ccd2;
-  --dim: #767e86;
-  --accent: #cc4517;
-  --on-accent: #fff3ec;
+  --paper: #e8e8e8;     /* matches Esri light gray land */
+  --panel: #ffffff;
+  --line: #d6d8dd;
+  --ink: #262a33;
+  --dim: #6b717c;
+  --p0: #3ccf9a;        /* 🐶 mint */
+  --p0-deep: #17845e;
+  --p1: #b49cf0;        /* 🏃‍♀️ lavender */
+  --p1-deep: #6b4fc4;
 }
 
-html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); }
+html, body { margin: 0; height: 100%; background: var(--paper); color: var(--ink); }
 body { font-family: "Archivo", system-ui, sans-serif; }
-#map { position: fixed; inset: 0; background: var(--bg); }
+#map { position: fixed; inset: 0; background: var(--paper); }
 
 .title {
   position: fixed; z-index: 500; top: 16px; left: 16px; margin: 0;
   padding: 6px 12px 8px;
-  background: var(--accent); color: var(--on-accent);
+  background: var(--ink); color: var(--panel);
   font-size: 22px; font-weight: 800; font-stretch: 125%; letter-spacing: -0.01em; line-height: 1;
   pointer-events: none;
 }
 
-/* Pins: a filled square, like a site footprint on a plat map */
-.pin { width: 14px; height: 14px; background: var(--accent); border: 2px solid var(--on-accent); box-sizing: border-box; transform: rotate(45deg); }
-/* Second person: inverted colors, so the pair stays in the palette */
-.pin.p1 { background: var(--on-accent); border-color: var(--accent); }
-.pin:focus-visible { outline: 2px solid var(--on-accent); outline-offset: 3px; }
+/* Pins: a filled square, like a site footprint on a plat map. White border + dark ring reads on pale tiles. */
+.pin {
+  width: 14px; height: 14px; box-sizing: border-box; transform: rotate(45deg);
+  border: 2px solid var(--panel); box-shadow: 0 0 0 1px rgba(38, 42, 51, 0.55);
+}
+.pin.p0 { background: var(--p0); }
+.pin.p1 { background: var(--p1); }
+.leaflet-marker-icon:focus-visible { outline: none; }
+.leaflet-marker-icon:focus-visible .pin { box-shadow: 0 0 0 1px var(--ink), 0 0 0 4px var(--panel), 0 0 0 5px var(--ink); }
 
 .legend {
   position: fixed; z-index: 500; top: 60px; left: 16px; margin: 0; padding: 8px 12px;
@@ -44,19 +50,24 @@ body { font-family: "Archivo", system-ui, sans-serif; }
 .legend .pin { width: 11px; height: 11px; }
 .legend .n { color: var(--dim); font-variant-numeric: tabular-nums; }
 
-.leaflet-popup-content-wrapper, .leaflet-popup-tip { background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 2px; box-shadow: none; }
-.leaflet-popup-content { margin: 14px 16px; font: 14px/1.45 "Archivo", system-ui, sans-serif; }
-.leaflet-container a.leaflet-popup-close-button { color: var(--dim); }
-.pop h2 { margin: 0 0 4px; font-size: 17px; font-weight: 700; font-stretch: 110%; color: var(--on-accent); }
+.leaflet-popup-content-wrapper, .leaflet-popup-tip { background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 2px; box-shadow: 0 2px 10px rgba(38, 42, 51, 0.12); }
+.leaflet-popup-content-wrapper { overflow: hidden; }
+.leaflet-popup-content { margin: 0; font: 14px/1.45 "Archivo", system-ui, sans-serif; }
+.leaflet-container a.leaflet-popup-close-button { color: var(--dim); top: 6px; }
+.pop { padding: 14px 16px; border-top: 4px solid; }
+.pop.p0 { border-color: var(--p0); }
+.pop.p1 { border-color: var(--p1); }
+.pop h2 { margin: 0 0 4px; font-size: 17px; font-weight: 700; font-stretch: 110%; }
 .pop .addr { color: var(--dim); margin: 0 0 10px; }
 .pop dl { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; margin: 0 0 10px; }
 .pop dt { color: var(--dim); }
 .pop dd { margin: 0; }
-.pop a { color: var(--accent); }
+.pop.p0 a { color: var(--p0-deep); }
+.pop.p1 a { color: var(--p1-deep); }
 
-.leaflet-control-attribution { background: rgba(10, 10, 11, 0.7) !important; color: var(--dim); }
+.leaflet-control-attribution { background: rgba(255, 255, 255, 0.8) !important; color: var(--dim); }
 .leaflet-control-attribution a { color: var(--dim); }
-.leaflet-bar a { background: var(--panel); color: var(--text); border-color: var(--line); }
+.leaflet-bar a { background: var(--panel); color: var(--ink); border-color: var(--line); }
 </style>
 </head>
 <body>
@@ -69,11 +80,11 @@ const PEOPLE = ["\ud83d\udc36", "\ud83c\udfc3\u200d\u2640\ufe0f"];</script>
 <script>const map = L.map("map", { zoomControl: false });
 L.control.zoom({ position: "bottomright" }).addTo(map);
 const esri = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas";
-L.tileLayer(`${esri}/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`, {
+L.tileLayer(`${esri}/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}`, {
   attribution: "Tiles &copy; Esri &mdash; Esri, HERE, Garmin, &copy; OpenStreetMap contributors",
   maxZoom: 16,
 }).addTo(map);
-L.tileLayer(`${esri}/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, { maxZoom: 16 }).addTo(map);
+L.tileLayer(`${esri}/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, { maxZoom: 16 }).addTo(map);
 const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 const pin = (who) => `<div class="pin p${PEOPLE.indexOf(who)}"></div>`;
 const icons = Object.fromEntries(PEOPLE.map((p) => [p, L.divIcon({ className: "", html: pin(p), iconSize: [14, 14] })]));
@@ -85,7 +96,7 @@ document.querySelector(".legend").innerHTML = PEOPLE.map(
 const markers = SITES.map((s) =>
   L.marker([s.lat, s.lng], { icon: icons[s.who], title: s.name, keyboard: true })
     .bindPopup(
-      `<div class="pop"><h2>${s.who} ${esc(s.name)}</h2>` +
+      `<div class="pop p${PEOPLE.indexOf(s.who)}"><h2>${s.who} ${esc(s.name)}</h2>` +
       `<p class="addr">${esc(s.address)}</p>` +
       `<dl><dt>Sat</dt><dd>${esc(s.sat)}</dd><dt>Sun</dt><dd>${esc(s.sun)}</dd></dl>` +
       `<a href="${esc(s.url)}" target="_blank" rel="noopener">Open House page</a></div>`
