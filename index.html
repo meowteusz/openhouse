@@ -31,7 +31,18 @@ body { font-family: "Archivo", system-ui, sans-serif; }
 
 /* Pins: a filled square, like a site footprint on a plat map */
 .pin { width: 14px; height: 14px; background: var(--accent); border: 2px solid var(--on-accent); box-sizing: border-box; transform: rotate(45deg); }
+/* Second person: inverted colors, so the pair stays in the palette */
+.pin.p1 { background: var(--on-accent); border-color: var(--accent); }
 .pin:focus-visible { outline: 2px solid var(--on-accent); outline-offset: 3px; }
+
+.legend {
+  position: fixed; z-index: 500; top: 60px; left: 16px; margin: 0; padding: 8px 12px;
+  list-style: none; background: var(--panel); border: 1px solid var(--line);
+  font-size: 15px; line-height: 1.6;
+}
+.legend li { display: flex; align-items: center; gap: 10px; }
+.legend .pin { width: 11px; height: 11px; }
+.legend .n { color: var(--dim); font-variant-numeric: tabular-nums; }
 
 .leaflet-popup-content-wrapper, .leaflet-popup-tip { background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 2px; box-shadow: none; }
 .leaflet-popup-content { margin: 14px 16px; font: 14px/1.45 "Archivo", system-ui, sans-serif; }
@@ -51,8 +62,10 @@ body { font-family: "Archivo", system-ui, sans-serif; }
 <body>
 <div id="map"></div>
 <h1 class="title">arch dreams!!!</h1>
+<ul class="legend"></ul>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script>const SITES = [{"name": "Uptown Theatre", "address": "4816 N Broadway, Chicago, IL 60640", "sat": "10am-3pm", "sun": "10am-3pm", "url": "https://openhousechicago.org/sites/recVzrEJFpZCm04uH", "lat": 41.969505, "lng": -87.659713}, {"name": "Electrical Audio", "address": "2621 W. Belmont Ave., Chicago, IL 60618", "sat": "Closed", "sun": "10am-5pm", "url": "https://openhousechicago.org/sites/recE9khuvRUUvo9Ai", "lat": 41.939394, "lng": -87.693803}, {"name": "Working Bikes", "address": "2434 S. Western Ave., Chicago, IL 60608", "sat": "10am-5pm", "sun": "Closed", "url": "https://openhousechicago.org/sites/reczKCAkaxSOgcfeF", "lat": 41.847345, "lng": -87.685728}, {"name": "Mana Contemporary Chicago", "address": "2233 S. Throop St., Chicago, IL 60608", "sat": "12-5pm", "sun": "Closed", "url": "https://openhousechicago.org/sites/rectZP6wJLEb3gJpJ", "lat": 41.850535, "lng": -87.658262}, {"name": "The Plant", "address": "1400 W. 46th St., Chicago, IL 60609", "sat": "10am-4pm", "sun": "10am-4pm", "url": "https://openhousechicago.org/sites/rectOvZhOflGmdoTs", "lat": 41.810768, "lng": -87.660576}, {"name": "Zhou B Art Center", "address": "1029 W. 35th St., Chicago, IL 60616", "sat": "10am-5pm", "sun": "Closed", "url": "https://openhousechicago.org/sites/recyY3ItZBDMXZOOq", "lat": 41.830584, "lng": -87.652312}, {"name": "Smashed Plastic Record Pressing", "address": "4200 W. Diversey Ave., Chicago, IL 60639", "sat": "10am-3pm", "sun": "10am-3pm", "url": "https://openhousechicago.org/sites/recGNGNzLflAqzsPR", "lat": 41.931846, "lng": -87.73249}, {"name": "Pui Tak Center", "address": "2216 S. Wentworth Ave., Chicago, IL 60616", "sat": "10am-4pm", "sun": "Closed", "url": "https://openhousechicago.org/sites/reccKiqVCYutXnjfG", "lat": 41.852365, "lng": -87.632053}, {"name": "Kenar Studio", "address": "1007 N. Wolcott Ave., Chicago, IL 60622", "sat": "11am-5pm", "sun": "11am-5pm", "url": "https://openhousechicago.org/sites/rec2Z0x283WnciMvx", "lat": 41.899973, "lng": -87.674581}];</script>
+<script>const SITES = [{"who": "\ud83c\udfc3\u200d\u2640\ufe0f", "name": "Uptown Theatre", "address": "4816 N Broadway, Chicago, IL 60640", "sat": "10am-3pm", "sun": "10am-3pm", "url": "https://openhousechicago.org/sites/recVzrEJFpZCm04uH", "lat": 41.969505, "lng": -87.659713}, {"who": "\ud83c\udfc3\u200d\u2640\ufe0f", "name": "Electrical Audio", "address": "2621 W. Belmont Ave., Chicago, IL 60618", "sat": "Closed", "sun": "10am-5pm", "url": "https://openhousechicago.org/sites/recE9khuvRUUvo9Ai", "lat": 41.939394, "lng": -87.693803}, {"who": "\ud83c\udfc3\u200d\u2640\ufe0f", "name": "Working Bikes", "address": "2434 S. Western Ave., Chicago, IL 60608", "sat": "10am-5pm", "sun": "Closed", "url": "https://openhousechicago.org/sites/reczKCAkaxSOgcfeF", "lat": 41.847345, "lng": -87.685728}, {"who": "\ud83c\udfc3\u200d\u2640\ufe0f", "name": "Mana Contemporary Chicago", "address": "2233 S. Throop St., Chicago, IL 60608", "sat": "12-5pm", "sun": "Closed", "url": "https://openhousechicago.org/sites/rectZP6wJLEb3gJpJ", "lat": 41.850535, "lng": -87.658262}, {"who": "\ud83d\udc36", "name": "The Chicago Board of Trade Building", "address": "141 W. Jackson Blvd., Chicago, IL 60604", "sat": "10am-5pm", "sun": "10am-5pm", "url": "https://openhousechicago.org/sites/recS2oUjy5dPsUhxn", "lat": 41.878057, "lng": -87.632211}, {"who": "\ud83d\udc36", "name": "Goettsch Partners", "address": "224 S. Michigan Ave., Floor 17, Chicago, IL 60604", "sat": "10am-2pm", "sun": "Closed", "url": "https://openhousechicago.org/sites/recUqRnGJu8pgmSaH", "lat": 41.878658, "lng": -87.6251}, {"who": "\ud83d\udc36", "name": "HKS", "address": "72 W. Adams St., 11th Floor, Chicago, IL 60430", "sat": "10am-5pm", "sun": "Closed", "url": "https://openhousechicago.org/sites/rec7jrBMvrq9apCVI", "lat": 41.879903, "lng": -87.63054}, {"who": "\ud83c\udfc3\u200d\u2640\ufe0f", "name": "The Plant", "address": "1400 W. 46th St., Chicago, IL 60609", "sat": "10am-4pm", "sun": "10am-4pm", "url": "https://openhousechicago.org/sites/rectOvZhOflGmdoTs", "lat": 41.810768, "lng": -87.660576}, {"who": "\ud83c\udfc3\u200d\u2640\ufe0f", "name": "Zhou B Art Center", "address": "1029 W. 35th St., Chicago, IL 60616", "sat": "10am-5pm", "sun": "Closed", "url": "https://openhousechicago.org/sites/recyY3ItZBDMXZOOq", "lat": 41.830584, "lng": -87.652312}, {"who": "\ud83c\udfc3\u200d\u2640\ufe0f", "name": "Smashed Plastic Record Pressing", "address": "4200 W. Diversey Ave., Chicago, IL 60639", "sat": "10am-3pm", "sun": "10am-3pm", "url": "https://openhousechicago.org/sites/recGNGNzLflAqzsPR", "lat": 41.931846, "lng": -87.73249}, {"who": "\ud83d\udc36", "name": "Farm on Ogden", "address": "3555 W. Ogden Ave., Chicago, IL 60623", "sat": "10am-5pm", "sun": "Closed", "url": "https://openhousechicago.org/sites/rec6q0V1F6JV7P8DM", "lat": 41.85429137922414, "lng": -87.71444157331271}, {"who": "\ud83d\udc36", "name": "Four Star Mushrooms", "address": "320 N. Oakley Blvd., Chicago, IL 60612", "sat": "10am-3pm", "sun": "10am-3pm", "url": "https://openhousechicago.org/sites/recP0JyCKLLte23QQ", "lat": 41.8873762455978, "lng": -87.68427570355882}, {"who": "\ud83d\udc36", "name": "Pui Tak Center", "address": "2216 S. Wentworth Ave., Chicago, IL 60616", "sat": "10am-4pm", "sun": "Closed", "url": "https://openhousechicago.org/sites/reccKiqVCYutXnjfG", "lat": 41.852365, "lng": -87.632053}, {"who": "\ud83c\udfc3\u200d\u2640\ufe0f", "name": "Kenar Studio", "address": "1007 N. Wolcott Ave., Chicago, IL 60622", "sat": "11am-5pm", "sun": "11am-5pm", "url": "https://openhousechicago.org/sites/rec2Z0x283WnciMvx", "lat": 41.899973, "lng": -87.674581}];
+const PEOPLE = ["\ud83d\udc36", "\ud83c\udfc3\u200d\u2640\ufe0f"];</script>
 <script>const map = L.map("map", { zoomControl: false });
 L.control.zoom({ position: "bottomright" }).addTo(map);
 const esri = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas";
@@ -62,12 +75,17 @@ L.tileLayer(`${esri}/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`, {
 }).addTo(map);
 L.tileLayer(`${esri}/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, { maxZoom: 16 }).addTo(map);
 const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-const icon = L.divIcon({ className: "", html: '<div class="pin"></div>', iconSize: [14, 14] });
+const pin = (who) => `<div class="pin p${PEOPLE.indexOf(who)}"></div>`;
+const icons = Object.fromEntries(PEOPLE.map((p) => [p, L.divIcon({ className: "", html: pin(p), iconSize: [14, 14] })]));
+
+document.querySelector(".legend").innerHTML = PEOPLE.map(
+  (p) => `<li>${pin(p)}<span>${p}</span><span class="n">${SITES.filter((s) => s.who === p).length}</span></li>`
+).join("");
 
 const markers = SITES.map((s) =>
-  L.marker([s.lat, s.lng], { icon, title: s.name, keyboard: true })
+  L.marker([s.lat, s.lng], { icon: icons[s.who], title: s.name, keyboard: true })
     .bindPopup(
-      `<div class="pop"><h2>${esc(s.name)}</h2>` +
+      `<div class="pop"><h2>${s.who} ${esc(s.name)}</h2>` +
       `<p class="addr">${esc(s.address)}</p>` +
       `<dl><dt>Sat</dt><dd>${esc(s.sat)}</dd><dt>Sun</dt><dd>${esc(s.sun)}</dd></dl>` +
       `<a href="${esc(s.url)}" target="_blank" rel="noopener">Open House page</a></div>`
